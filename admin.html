@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+  <meta charset="UTF-8">
+
+  <style>
+    body { font-family: Arial; background: #f4f6f8; padding: 20px; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 20px; }
+    .hidden { display: none; }
+    input { width: 100%; padding: 10px; margin: 10px 0; }
+    button { padding: 8px; margin: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+  </style>
+</head>
+
+<body>
+
+<!-- 🔐 LOGIN -->
+<div id="loginPage" class="container">
+  <h2>Admin Login</h2>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <p id="error" style="color:red;"></p>
+</div>
+
+<!-- 📊 PANEL -->
+<div id="adminPage" class="container hidden">
+  <h2>Admin Panel</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Items</th>
+        <th>Token</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="table"></tbody>
+  </table>
+
+  <button onclick="loadOrders()">Refresh</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+
+// 🔐 Login via backend
+async function login() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  const res = await fetch('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    document.getElementById("loginPage").classList.add("hidden");
+    document.getElementById("adminPage").classList.remove("hidden");
+    loadOrders();
+  } else {
+    document.getElementById("error").innerText = data.message;
+  }
+}
+
+// 📊 Load Orders
+async function loadOrders() {
+  const res = await fetch('/api/orders');
+  if (!res.ok) return alert("Unauthorized");
+
+  const data = await res.json();
+
+  let html = "";
+
+  data.forEach(o => {
+    html += `
+      <tr>
+        <td>${o.name}</td>
+        <td>${JSON.stringify(o.items)}</td>
+        <td>${o.token}</td>
+        <td>${o.status}</td>
+        <td>
+          <button onclick="updateStatus(${o.token}, 'Ready')">Ready</button>
+          <button onclick="updateStatus(${o.token}, 'Collected')">Collected</button>
+        </td>
+      </tr>`;
+  });
+
+  document.getElementById("table").innerHTML = html;
+}
+
+// 🔄 Update Status
+async function updateStatus(token, status) {
+  await fetch('/api/order/' + token, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status })
+  });
+
+  loadOrders();
+}
+
+// 🚪 Logout
+async function logout() {
+  await fetch('/api/logout', { method: 'POST' });
+  location.reload();
+}
+
+</script>
+
+</body>
+</html>
