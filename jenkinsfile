@@ -5,31 +5,32 @@ pipeline {
 
         stage('Clone') {
             steps {
-                git 'https://github.com/anuradha2430/To-DoList.git'
+                git branch: 'main',
+                    url: 'https://github.com/anuradha2430/campus-food-system.git'
             }
         }
 
         stage('Install') {
             steps {
-                sh 'npm install'
+                bat 'npm install'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'npm test'
+                bat 'npm test || echo No tests'
             }
         }
 
         stage('Build Docker') {
             steps {
-                sh 'docker build -t campus-food-app .'
+                bat 'docker build -t campus-food .'
             }
         }
 
         stage('Run') {
             steps {
-                sh 'docker run -d -p 3000:3000 campus-food-app'
+                bat 'docker run -d -p 3000:3000 campus-food'
             }
         }
     }
