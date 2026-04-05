@@ -1,12 +1,21 @@
 pipeline {
     agent any
 
+    environment {
+        NODE_ENV = 'test'
+    }
+
     stages {
+
+        stage('Clean') {
+            steps {
+                deleteDir()
+            }
+        }
 
         stage('Clone') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/anuradha2430/campus-food-system.git'
+                git branch: 'main', url: 'https://github.com/anuradha2430/campus-food-system.git'
             }
         }
 
@@ -18,7 +27,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                bat 'npm test || echo No tests'
+                bat 'set NODE_ENV=test&& npm test'
             }
         }
 
@@ -30,8 +39,21 @@ pipeline {
 
         stage('Run') {
             steps {
-                bat 'docker run -d -p 3000:3000 campus-food'
+                bat '''
+                docker stop campus-food-container || exit 0
+                docker rm campus-food-container || exit 0
+                docker run -d -p 3000:3000 --name campus-food-container campus-food
+                '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Pipeline Success!'
+        }
+        failure {
+            echo '❌ Pipeline Failed!'
         }
     }
 }

@@ -3,83 +3,45 @@
 <head>
   <title>User - Food Booking</title>
   <meta charset="UTF-8">
-
-  <style>
-    body {
-      font-family: Arial;
-      background: #f4f6f8;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 500px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      text-align: center;
-    }
-
-    select, input {
-      width: 80%;
-      padding: 10px;
-      margin: 10px 0;
-    }
-
-    button {
-      padding: 10px;
-      width: 80%;
-      background: blue;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    #result {
-      margin-top: 15px;
-      font-weight: bold;
-    }
-  </style>
 </head>
 
 <body>
 
-<div class="container">
+<h2>Food Booking</h2>
 
-  <h2>Food Booking</h2>
+<input id="name" placeholder="Enter Name">
 
-  <input id="name" placeholder="Enter Name">
+<br><br>
 
-  <select id="VegBiryani">
-    <option value="0">Veg Biryani (0)</option>
-    <option value="1">Veg Biryani (1)</option>
-    <option value="2">Veg Biryani (2)</option>
-  </select>
+<select id="VegBiryani">
+  <option value="0">Veg Biryani (0)</option>
+  <option value="1">Veg Biryani (1)</option>
+  <option value="2">Veg Biryani (2)</option>
+</select>
 
-  <select id="Dosa">
-    <option value="0">Dosa (0)</option>
-    <option value="1">Dosa (1)</option>
-    <option value="2">Dosa (2)</option>
-  </select>
+<select id="Dosa">
+  <option value="0">Dosa (0)</option>
+  <option value="1">Dosa (1)</option>
+  <option value="2">Dosa (2)</option>
+</select>
 
-  <button onclick="placeOrder()">Place Order</button>
+<br><br>
 
-  <h3 id="result"></h3>
+<button onclick="placeOrder()">Place Order</button>
 
-</div>
+<h3 id="result" style="color: green;"></h3>
 
 <script>
 async function placeOrder() {
-  const name = document.getElementById("name").value.trim();
+  const name = document.getElementById("name").value;
 
   const items = [
     { name: "VegBiryani", qty: Number(document.getElementById("VegBiryani").value) },
     { name: "Dosa", qty: Number(document.getElementById("Dosa").value) }
-  ].filter(i => i.qty > 0);
+  ].filter(item => item.qty > 0);
 
-  // ✅ Validation
   if (!name || items.length === 0) {
-    alert("Enter name & select items");
+    alert("Enter name and select items");
     return;
   }
 
@@ -92,19 +54,16 @@ async function placeOrder() {
 
     const data = await res.json();
 
-    // ✅ Handle success & error
-    if (res.ok) {
+    if (data.token) {
       document.getElementById("result").innerText =
-        "✅ Order Placed | Token: " + data.token;
+        "Order Placed | Token: " + data.token;
     } else {
       document.getElementById("result").innerText =
-        "❌ " + data.message;
+        "Error: " + data.message;
     }
 
   } catch (err) {
-    console.error(err);
-    document.getElementById("result").innerText =
-      "❌ Server Error";
+    document.getElementById("result").innerText = "Server Error";
   }
 }
 </script>

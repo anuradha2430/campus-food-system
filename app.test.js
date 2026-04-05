@@ -14,13 +14,12 @@ describe('API Tests', () => {
       .post('/api/order')
       .send({
         name: "Anu",
-        roll: "123",
-        room: "A1",
         items: [{ name: "Dosa", qty: 2 }]
       });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.status).toBe("Booked");
+    expect(res.body.token).toBeDefined();
   });
 
 });
