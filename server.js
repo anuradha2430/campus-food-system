@@ -13,7 +13,10 @@ let token = 100;
 
 app.post('/api/order', (req, res) => {
   token++;
-  res.json({ token });
+  res.json({
+  token,
+  status: "Booked"
+});
 });
 
 // ✅ EXPORT APP FIRST
